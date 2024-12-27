@@ -85,7 +85,7 @@ func Scrape() {
 			imageKey := tir.TaskId + "~" + payload.Screenshot.FileName
 			wg.Add(1)
 			sem <- 1
-			go handleImageDownload(db, &wg, sem, imageUrl, imageKey)
+			go handleImageDownload(db, &wg, sem, imageUrl, imageKey, payload.Screenshot.Timestamp)
 		}
 	}
 
@@ -94,15 +94,15 @@ func Scrape() {
 
 // TODO: Update this to s3 when done testing.
 // Takes a given owl screenshot and downloads it
-func handleImageDownload(db lvldb.LvlDB, wg *sync.WaitGroup, sem <-chan int, imageUrl string, imageKey string) {
+func handleImageDownload(db lvldb.LvlDB, wg *sync.WaitGroup, sem <-chan int, imageUrl string, imageKey string, timestamp string) {
 	defer wg.Done()
 	defer func() { <-sem }()
-	fileExists, err := db.Exists(imageKey)
+	fileExists, err := db.Get(imageKey)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	if fileExists {
+	if fileExists != "" {
 		return
 	}
 	resp, err := http.Get(imageUrl)
@@ -124,7 +124,7 @@ func handleImageDownload(db lvldb.LvlDB, wg *sync.WaitGroup, sem <-chan int, ima
 		fmt.Println(err)
 		return
 	}
-	err = db.Create(imageKey)
+	err = db.Create(imageKey, timestamp)
 	if err != nil {
 		fmt.Println(err)
 	}

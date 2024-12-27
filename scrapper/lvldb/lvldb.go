@@ -23,18 +23,19 @@ func NewLvlDB() LvlDB {
 	}
 }
 
-func (db *LvlDB) Exists(key string) (bool, error) {
-	_, err := db.Conn.Get([]byte(key), nil)
+// Checks if an image exists, returns
+func (db *LvlDB) Get(key string) (string, error) {
+	timestamp, err := db.Conn.Get([]byte(key), nil)
 	if err == leveldb.ErrNotFound {
-		return false, nil
+		return "", nil
 	} else if err != nil {
-		return false, err
+		return "", err
 	}
-	return true, nil
+	return string(timestamp), nil
 }
 
-func (db *LvlDB) Create(key string) error {
-	err := db.Conn.Put([]byte(key), []byte(key), nil)
+func (db *LvlDB) Create(key string, timestamp string) error {
+	err := db.Conn.Put([]byte(key), []byte(timestamp), nil)
 	if err != nil {
 		return err
 	}
