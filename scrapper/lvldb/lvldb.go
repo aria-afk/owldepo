@@ -23,7 +23,7 @@ func NewLvlDB() LvlDB {
 	}
 }
 
-// Checks if an image exists, returns
+// Checks if an image exists, returns timestamp if it does
 func (db *LvlDB) Get(key string) (string, error) {
 	timestamp, err := db.Conn.Get([]byte(key), nil)
 	if err == leveldb.ErrNotFound {
@@ -34,6 +34,7 @@ func (db *LvlDB) Get(key string) (string, error) {
 	return string(timestamp), nil
 }
 
+// Put imagekey and corrolated timestamp into db
 func (db *LvlDB) Create(key string, timestamp string) error {
 	err := db.Conn.Put([]byte(key), []byte(timestamp), nil)
 	if err != nil {

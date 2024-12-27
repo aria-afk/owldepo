@@ -42,15 +42,12 @@ func Scrape() {
 	// For each TaskId retrieve each screenshot's url and attached timestamp
 	var wg sync.WaitGroup
 	sem := make(chan int, 20)
-	taskIdErrors := make(chan error, len(searchIndexResults))
-	taskIdResponses := make(chan TaskIdReponse, len(searchIndexResults))
+	searchIndexResultsLen := len(searchIndexResults)
+	taskIdErrors := make(chan error, searchIndexResultsLen)
+	taskIdResponses := make(chan TaskIdReponse, searchIndexResultsLen)
 
 	for i, sir := range searchIndexResults {
-		// TESTING: REMOVE ME
-		if i > 10 {
-			break
-		}
-		// -----------------
+		fmt.Printf("\r processing index search results: [%d / %d]             ", i, searchIndexResultsLen)
 		wg.Add(1)
 		sem <- 1
 		go func(taskId string) {
@@ -148,4 +145,5 @@ func panicf(err error, message string) {
 }
 
 func main() {
+	Scrape()
 }
