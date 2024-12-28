@@ -10,6 +10,7 @@ import (
 	"markdata/lvldb"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -58,6 +59,11 @@ func main() {
 
 		writeImage(img, outPath+name)
 		// TODO: Update db that this image is done
+
+		imageNameNoExtension := strings.Split(name, ".png")
+		textFilePath := outPath + imageNameNoExtension[0] + ".gt.txt"
+		fmt.Printf("\r vim %s ", textFilePath)
+		fmt.Printf("\r")
 
 		cmd := exec.Command("xdg-open", outPath+name)
 		if err := cmd.Run(); err != nil {
