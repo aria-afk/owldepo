@@ -73,6 +73,14 @@ func main() {
 			break
 		}
 
+		err = db.Put(name, outPath+name)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// TODO: remove any files that dont have a corresponding .gt.txt (this basically means they were skipped)
+		if _, err := os.Stat(textFilePath); errors.Is(err, os.ErrNotExist) {
+			os.Remove(outPath + name)
+		}
 	}
 }
 
