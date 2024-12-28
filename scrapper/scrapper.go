@@ -4,6 +4,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,10 +35,15 @@ type TaskIdReponse struct {
 func Scrape() {
 	db := lvldb.NewLvlDB()
 	defer db.Conn.Close()
+	err := os.Mkdir("images", os.ModePerm)
+	if err != nil && !errors.Is(err, os.ErrExist) {
+		fmt.Println(err)
+		return
+	}
 	// Retrieve the search_item_listing information
 	searchItemIndexUrl := "https://storage.googleapis.com/owlrepo/v1/queries/search_item_listing.json"
 	searchIndexResults := make([]SearchItemIndexResponse, 0)
-	err := getJsonAndDecode(searchItemIndexUrl, &searchIndexResults)
+	err = getJsonAndDecode(searchItemIndexUrl, &searchIndexResults)
 	panicf(err, "Could not retrieve and decode search_item_listing.json")
 
 	// For each TaskId retrieve each screenshot's url and attached timestamp
