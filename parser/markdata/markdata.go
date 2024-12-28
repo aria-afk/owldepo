@@ -11,13 +11,15 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"golang.org/x/exp/rand"
 )
 
 func main() {
 	// TODO: Make this stuff env args after testing is done
 	dataPath := "../../scrapper/images/"
 	outPath := "./out/"
-	maxIters := 5
+	maxIters := 10
 
 	err := os.Mkdir(outPath, os.ModePerm)
 	if !errors.Is(err, os.ErrExist) && err != nil {
@@ -51,14 +53,14 @@ func main() {
 
 		// TODO: We want to map different crop locations
 		// to get different samples from the owl printout
-		img, err = cropImage(img, image.Rect(0, 0, 100, 100))
+		shape := getCropShape()
+		img, err = cropImage(img, shape)
 		if err != nil {
 			fmt.Println("3", err)
 			continue
 		}
 
 		writeImage(img, outPath+name)
-		// TODO: Update db that this image is done
 
 		imageNameNoExtension := strings.Split(name, ".png")
 		textFilePath := outPath + imageNameNoExtension[0] + ".gt.txt"
@@ -70,7 +72,25 @@ func main() {
 			fmt.Println("4", err)
 			break
 		}
+
 	}
+}
+
+// This returns a random crop of single line text from a screenshot
+// https://pixspy.com/
+func getCropShape() image.Rectangle {
+	dims := []image.Rectangle{
+		image.Rect(14, 39, 410, 54),
+		image.Rect(10, 125, 290, 147),
+		image.Rect(10, 150, 290, 172),
+		image.Rect(10, 170, 290, 192),
+		image.Rect(10, 195, 290, 212),
+		image.Rect(10, 218, 290, 235),
+		image.Rect(10, 233, 290, 260),
+		image.Rect(10, 258, 290, 285),
+		image.Rect(10, 278, 290, 310),
+	}
+	return dims[rand.Intn(len(dims))]
 }
 
 func readImage(name string) (image.Image, error) {
