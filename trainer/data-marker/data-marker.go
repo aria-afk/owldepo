@@ -25,7 +25,7 @@ func main() {
 	}
 
 	rawImagesPath := "../../scrapper/images/"
-	outPath := "./training-data/"
+	outPath := "../tess_files/tesstrain/data/maplestory-ground-truth/"
 	err = os.Mkdir(outPath, os.ModePerm)
 	if !errors.Is(err, os.ErrExist) && err != nil {
 		log.Fatalf("Could not create the outpath\n%s", err)
