@@ -1,12 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"image"
 	"image/png"
 	"os"
+	"os/exec"
 )
+
+// TODO:
+// Change panic(fmt.Errorf) to just log.Fatalf
 
 func main() {
 	sourceDir := "../scrapper/images/"
@@ -16,17 +21,19 @@ func main() {
 	}
 	for i, file := range files {
 		// TESTING: remove after
-		if i > 0 {
+		if i > 10 {
 			break
 		}
 		splitImg, err := splitImage(sourceDir + file.Name())
 		if err != nil {
 			panic(fmt.Errorf("Error splitting image\n%s", err))
 		}
-		readSplitImage(splitImg)
+		sir, _ := readSplitImage(splitImg)
+		fmt.Println(sir)
 	}
 }
 
+// TODO: Add all row areas once testing is done
 type SplitImage struct {
 	SearchArea image.Image
 	R1UserID   image.Image
@@ -94,10 +101,54 @@ func readSplitImage(si SplitImage) (SplitImageResults, error) {
 		return sir, err
 	}
 
-	writeImage(si.SearchArea, tmpPath+"searchArea.png")
+	// Create temp cropped images to be read by ocr
+	writeImage(si.SearchArea, tmpPath+"SearchArea.png")
 	writeImage(si.R1UserID, tmpPath+"R1UserID.png")
 	writeImage(si.R1Quantity, tmpPath+"R1Quantity.png")
 	writeImage(si.R1Price, tmpPath+"R1Price.png")
+
+	// Read in image data
+	files, err := os.ReadDir(tmpPath)
+	if err != nil {
+		panic(fmt.Errorf("Issue reading tmp path\n%s", err))
+	}
+	for _, file := range files {
+		cmd := exec.Command(
+			"tesseract",
+			tmpPath+file.Name(),
+			"stdout",
+			"--tessdata-dir",
+			"../trainer/tess_files/tesstrain/data/",
+			"--psm",
+			"7",
+			"-l",
+			"maplestory",
+			"--loglevel",
+			"ALL",
+		)
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, "TESSDATA_PREFIX=../trainer/tess_files/tesseract/tessdata/")
+		if err := cmd.Run(); err != nil {
+			panic(fmt.Errorf("Error setting tessdata prefix \n%s", err))
+		}
+		switch file.Name() {
+		case "SearchArea.png":
+			sir.SearchArea = out.String()
+		case "R1UserID.png":
+			sir.R1UserID = out.String()
+		case "R1Quantity.png":
+			sir.R1Quantity = out.String()
+		case "R1Price.png":
+			sir.R1Price = out.String()
+		default:
+			fmt.Println("missed data:", file.Name(), out.String())
+		}
+	}
+
+	// remove tmp dir
+	os.RemoveAll(tmpPath)
 
 	return sir, nil
 }

@@ -190,3 +190,27 @@
 15:10:21.278256 db@open done T·30.99546ms
 15:10:21.278322 table@move L0@45 -> L1
 15:10:21.278375 version@stat F·[3 7] S·4KiB[778B 3KiB] Sc·[0.75 0.00]
+=============== Jan 4, 2025 (PST) ===============
+14:45:23.618584 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:45:23.619940 version@stat F·[3 7] S·4KiB[778B 3KiB] Sc·[0.75 0.00]
+14:45:23.619968 db@open opening
+14:45:23.620091 journal@recovery F·1
+14:45:23.620465 journal@recovery recovering @46
+14:45:23.624625 memdb@flush created L0@48 N·10 S·380B "017..png,v78":"017..png,v87"
+14:45:23.625036 version@stat F·[4 7] S·4KiB[1KiB 3KiB] Sc·[1.00 0.00]
+14:45:23.632415 db@janitor F·13 G·0
+14:45:23.632437 db@open done T·12.453828ms
+14:45:23.632499 table@move L0@48 -> L1
+14:45:23.632564 version@stat F·[3 8] S·4KiB[778B 3KiB] Sc·[0.75 0.00]
+=============== Jan 4, 2025 (PST) ===============
+14:47:56.143000 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:47:56.143299 version@stat F·[3 8] S·4KiB[778B 3KiB] Sc·[0.75 0.00]
+14:47:56.143316 db@open opening
+14:47:56.143390 journal@recovery F·1
+14:47:56.143636 journal@recovery recovering @49
+14:47:56.146856 memdb@flush created L0@51 N·10 S·379B "017..png,v89":"017..png,v98"
+14:47:56.147144 version@stat F·[4 8] S·5KiB[1KiB 3KiB] Sc·[1.00 0.00]
+14:47:56.154483 db@janitor F·14 G·0
+14:47:56.154506 db@open done T·11.164335ms
+14:47:56.154588 table@move L0@51 -> L1
+14:47:56.154654 version@stat F·[3 9] S·5KiB[778B 4KiB] Sc·[0.75 0.00]
