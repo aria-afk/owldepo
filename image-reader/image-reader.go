@@ -9,6 +9,7 @@ import (
 	"image/png"
 	"os"
 	"os/exec"
+	"strings"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -39,11 +40,11 @@ func main() {
 
 // TODO: Add all row areas once testing is done
 type SplitImage struct {
-	FileName   string
 	SearchArea image.Image
 	R1UserID   image.Image
 	R1Quantity image.Image
 	R1Price    image.Image
+	FileName   string
 }
 
 // splitImage takes an uncropped owl screenshot and crops it into all
@@ -176,5 +177,44 @@ func readSplitImage(si SplitImage) (SplitImageResults, error) {
 }
 
 func saveResultsToDB(sir SplitImageResults, db *pg.PG) {
-	fmt.Println(sir.FileName)
+	_ = sir.parseFileName()
+	itemName := sir.parseItemNameFromSearchArea()
+	fmt.Println(itemName)
+
+	/*
+		_, err := db.Conn.Exec(`INSERT INTO ITEMS $1 ON CONFLICT DO NOTHING`, sir.parseItemNameFromSearchArea())
+		if err != nil {
+			log.Fatalf("Error performing insert into items query\n%s", err)
+		}
+	*/
+}
+
+type ParsedFileName struct {
+	TaskId    string
+	Timestamp string
+	FileName  string
+}
+
+func (sir *SplitImageResults) parseFileName() ParsedFileName {
+	// NOTE: THIS NEEDS TO BE UPDATED IF WE CHANGE PATHS
+	prepend := "../scrapper/images/"
+	fileNameNoPrepend := strings.Split(sir.FileName, prepend)
+	splitFileName := strings.Split(fileNameNoPrepend[1], "~")
+	return ParsedFileName{
+		TaskId:    splitFileName[0],
+		Timestamp: splitFileName[1],
+		FileName:  splitFileName[2],
+	}
+}
+
+func (sir *SplitImageResults) parseItemNameFromSearchArea() string {
+	prependRemoved := strings.Split(sir.SearchArea, "Search results for")
+	if len(prependRemoved) < 1 {
+		fmt.Println("ERROR parsing item name")
+	}
+	endingRemoved := strings.Split(prependRemoved[1], "that you entered.")
+	if len(endingRemoved) < 1 {
+		fmt.Println("ERROR parsing item name")
+	}
+	return endingRemoved[0]
 }

@@ -15,3 +15,9 @@ create table item_entry_info (
     quantity int not null,
     price float not null
 );
+
+-- basically k/v store of what images have already been injected
+-- imagekey is defined in scrapper as: {taskId}~{screenShotTimestamp}~{filename}.png
+create table images_ingested (
+    imagekey text primary key
+);
