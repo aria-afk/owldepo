@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image-reader/pg"
 	"image/png"
 	"os"
 	"os/exec"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 // TODO:
@@ -19,6 +22,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("Could not read source images\n%s", err))
 	}
+	db := pg.NewPG()
 	for i, file := range files {
 		// TESTING: remove after
 		if i > 10 {
@@ -29,12 +33,13 @@ func main() {
 			panic(fmt.Errorf("Error splitting image\n%s", err))
 		}
 		sir, _ := readSplitImage(splitImg)
-		fmt.Println(sir)
+		saveResultsToDB(sir, db)
 	}
 }
 
 // TODO: Add all row areas once testing is done
 type SplitImage struct {
+	FileName   string
 	SearchArea image.Image
 	R1UserID   image.Image
 	R1Quantity image.Image
@@ -44,6 +49,9 @@ type SplitImage struct {
 // splitImage takes an uncropped owl screenshot and crops it into all
 // possible sections for data gathering
 func splitImage(filename string) (SplitImage, error) {
+	si := SplitImage{
+		FileName: filename,
+	}
 	file, err := os.Open(filename)
 	if err != nil {
 		return SplitImage{}, err
@@ -69,7 +77,6 @@ func splitImage(filename string) (SplitImage, error) {
 		"R1Price":    image.Rect(181, 128, 260, 147),
 	}
 
-	si := SplitImage{}
 	for key, area := range areasToCrop {
 		switch key {
 		case "SearchArea":
@@ -87,14 +94,29 @@ func splitImage(filename string) (SplitImage, error) {
 }
 
 type SplitImageResults struct {
+	FileName   string
 	SearchArea string
 	R1UserID   string
 	R1Quantity string
 	R1Price    string
 }
 
+func writeImage(img image.Image, filename string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(fmt.Errorf("Issue writing image\n%s", err))
+	}
+	defer file.Close()
+	err = png.Encode(file, img)
+	if err != nil {
+		panic(fmt.Errorf("Issue writing image\n%s", err))
+	}
+}
+
 func readSplitImage(si SplitImage) (SplitImageResults, error) {
-	sir := SplitImageResults{}
+	sir := SplitImageResults{
+		FileName: si.FileName,
+	}
 
 	tmpPath := "./tmp/"
 	if err := os.Mkdir(tmpPath, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
@@ -153,14 +175,6 @@ func readSplitImage(si SplitImage) (SplitImageResults, error) {
 	return sir, nil
 }
 
-func writeImage(img image.Image, filename string) {
-	file, err := os.Create(filename)
-	if err != nil {
-		panic(fmt.Errorf("Issue writing image\n%s", err))
-	}
-	defer file.Close()
-	err = png.Encode(file, img)
-	if err != nil {
-		panic(fmt.Errorf("Issue writing image\n%s", err))
-	}
+func saveResultsToDB(sir SplitImageResults, db *pg.PG) {
+	fmt.Println(sir.FileName)
 }
