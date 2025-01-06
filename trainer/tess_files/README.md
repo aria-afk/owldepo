@@ -1,5 +1,15 @@
 # notes for now on how to train
 
+# If you dont have the project set up yet
+
+`python3 init.py`
+
+**And for now normalize the dataset file names**
+
+(fsr makefile doesnt like some of the characters in the base file names)
+
+`cd ./filenormalizer/ && go run filenormalizer.go`
+
 ```
 TESSDATA_PREFIX=../tesseract/tessdata make training MODEL_NAME=maplestory START_MODEL=eng TESSDATA=../tesseract/tessdata
 
