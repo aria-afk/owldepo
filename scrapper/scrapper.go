@@ -104,7 +104,7 @@ func Scrape() {
 		}
 		for _, payload := range tir.Payload {
 			imageUrl := "https://storage.googleapis.com/owlrepo/v1/uploads/" + tir.TaskId + "/raw/" + payload.Screenshot.FileName
-			imageKey := tir.TaskId + "~" + payload.Screenshot.FileName
+			imageKey := tir.TaskId + "~" + payload.Screenshot.Timestamp + "~" + payload.Screenshot.FileName
 			wg.Add(1)
 			sem <- 1
 			go handleImageDownload(db, &wg, sem, imageUrl, imageKey, payload.Screenshot.Timestamp)
