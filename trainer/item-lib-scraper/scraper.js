@@ -30,33 +30,19 @@ const sleep = (ms) => new Promise(res => setTimeout(res, ms));
     let startingPage = 139;
     const endPage = 885;
     while (startingPage <= endPage) {
-        process.stdout.write(`scraping pages done [ ${startingPage} ] / [ ${endPage} ]`);
+        process.stdout.write(`scraping pages [ ${startingPage} ] / [ ${endPage} ]`);
         process.stdout.write(`\r`);
         allPageData.push(...(await parseByPage(startingPage)));
         startingPage++;
     }
 
     const resJson = {
-        "etc": [],
-        "equip": [],
-        "use": [],
-        "setup": [],
     };
 
     for (let i = 0; i < allPageData.length; i++) {
         const pd = allPageData[i];
-        switch (pd?.type) {
-            case "Etc":
-                resJson.etc.push(pd);
-            case "Equip":
-                resJson.equip.push(pd);
-            case "Use":
-                resJson.use.push(pd);
-            case "Setup":
-                resJson.setup.push(pd);
-            default:
-                continue;
-        }
+        if (!pd?.name || !pd?.type || !pd?.libHref) continue;
+        resJson[pd.name] = pd;
     }
 
     if (fs.existsSync("./mapleitems.json")) {

@@ -13,33 +13,10 @@ from the `maplelegends.com/lib` page.
 
 ```json
 {
-    "etc"": [
-        {
+    "itemNameKey": {
             "libHref": "link to maplelegnds lib page for item",
             "name": "name of item",
             "type": "Etc"
-        }
-    ],
-    "equip": [
-        {
-            "libHref": "link to maplelegnds lib page for item",
-            "name": "name of item",
-            "type": "Equip"
-        }
-    ],
-    "use": [
-        {
-            "libHref": "link to maplelegnds lib page for item",
-            "name": "name of item",
-            "type": Use"
-        }
-    ],
-    "setup": [
-        {
-            "libHref": "link to maplelegnds lib page for item",
-            "name": "name of item",
-            "type": "Setup"
-        }
-    ]
+    }
 }
 ```
