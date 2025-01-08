@@ -1,0 +1,15 @@
+{
+  "name": "item-lib-scraper",
+  "version": "1.0.0",
+  "description": "There are so so many items in maple legends that can be searched via owl.",
+  "main": "scraper.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^23.11.1"
+  }
+}
