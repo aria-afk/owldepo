@@ -37,6 +37,7 @@ func main() {
 	}
 
 	i := 0
+	amountOfQuanity := 0
 	for _, file := range files {
 		if i >= *iterations {
 			break
@@ -44,6 +45,7 @@ func main() {
 
 		// Skip files we already marked
 		if fileAlreadyMarked(db, file.Name()) {
+			fmt.Println("skipped file")
 			continue
 		}
 
@@ -51,7 +53,16 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error opening image file\n%s", err)
 		}
-		croppedImg, err := cropImage(img, getCropShape())
+		cropShape, cropDimIdx := getCropShape()
+		// Limit the amount of quanity crops we look at since 99% of the time
+		// its just 1
+		if cropDimIdx == 2 {
+			if amountOfQuanity > *iterations/10 {
+				cropShape = image.Rect(14, 39, 410, 54)
+			}
+			amountOfQuanity += 1
+		}
+		croppedImg, err := cropImage(img, cropShape)
 		if err != nil {
 			log.Fatalf("Error cropping image\n%s", err)
 		}
@@ -63,8 +74,13 @@ func main() {
 		imgNameSplit := strings.Split(file.Name(), ".png")
 		vimTextFilePath := outPath + imgNameSplit[0] + ".gt.txt"
 		// Print vim command out
-		fmt.Printf("\r      vim %s", vimTextFilePath)
-		fmt.Printf("\r")
+		fmt.Print("\033[H\033[2J")
+		x := 0
+		for x < 10 {
+			fmt.Println("                 ")
+			x += 1
+		}
+		fmt.Printf("\r vim %s", vimTextFilePath)
 
 		cmd := exec.Command("xdg-open", outPath+file.Name())
 		if err := cmd.Run(); err != nil {
@@ -136,7 +152,7 @@ func writeImage(img image.Image, filename string) error {
 }
 
 // https://pixspy.com/
-func getCropShape() image.Rectangle {
+func getCropShape() (image.Rectangle, int) {
 	// For training data we want to limit this to the top search
 	// and then the first rows results
 	// training data MUST BE 1 line of text.
@@ -150,7 +166,8 @@ func getCropShape() image.Rectangle {
 		// Image price (first row)
 		image.Rect(181, 128, 260, 147),
 	}
-	return dims[rand.Intn(len(dims))]
+	idx := rand.Intn(len(dims))
+	return dims[idx], idx
 }
 
 // -------------------------------------------------------------------------

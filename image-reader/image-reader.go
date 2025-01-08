@@ -26,7 +26,7 @@ func main() {
 	db := pg.NewPG()
 	for i, file := range files {
 		// TESTING: remove after
-		if i > 10 {
+		if i > 100 {
 			break
 		}
 		splitImg, err := splitImage(sourceDir + file.Name())
@@ -207,6 +207,18 @@ func (sir *SplitImageResults) parseFileName() ParsedFileName {
 	}
 }
 
+// TODO:
+// #1 train the model more to get better error rates
+// #2 make a map of all items
+// #3 create a similarity function. ie Forced Dagger is almost
+//
+//	surely Forked Dagger. Check parseItemNameFromSearchArea
+//	results against item set and if match is 95%+ (or sth)
+//	we can likely use that
+//
+// #4 All Items that cant be parsed should be stored to be examined
+//
+//	and not marked as done in the db.
 func (sir *SplitImageResults) parseItemNameFromSearchArea() string {
 	prependRemoved := strings.Split(sir.SearchArea, "Search results for")
 	if len(prependRemoved) < 1 {
