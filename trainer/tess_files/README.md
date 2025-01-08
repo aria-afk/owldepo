@@ -10,14 +10,22 @@
 
 `cd ./filenormalizer/ && go run filenormalizer.go`
 
+Running the training and model:
+
+Note: I have commited the latest model and will update so you dont have to train.
+
 ```
+# from tess_files dir but can change file pathing if u want to run somewhere else
+# This trains the model
 TESSDATA_PREFIX=../tesseract/tessdata make training MODEL_NAME=maplestory START_MODEL=eng TESSDATA=../tesseract/tessdata
 
-# to run tesseract
-TESSDATA_PREFIX=../tesseract/tessdata tesseract {image path to run on} stdout --tessdata-dir ./tesstrain/data --psm 7 -l maplestory --loglevel ALL
+# Then to run tesseract and see eval as stdout
+TESSDATA_PREFIX=../tesseract/tessdata tesseract {image path to run on} stdout --tessdata-dir ./tesstrain/data --psm 13 -l maplestory --loglevel ALL
 ```
 
 ## Really important note
+
+Update: I will commit the newest model so you dont need to run the trainer yourself!
 
 When training is done it will generate a maplestory.traineddata file in ./tesstrain/data/maplestory/
 
