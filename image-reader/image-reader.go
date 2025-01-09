@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -17,7 +18,34 @@ import (
 // TODO:
 // Change panic(fmt.Errorf) to just log.Fatalf
 
+type ItemMap struct {
+	Entries map[string]ItemMapEntry `json:"entries"`
+}
+
+type ItemMapEntry struct {
+	LibHref string `json:"libHref"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+}
+
+func loadItemMap() ItemMap {
+	var im ItemMap
+	itemsPath := "../trainer/item-lib-scraper/mapleitems.json"
+	itemFile, err := os.Open(itemsPath)
+	if err != nil {
+		panic(fmt.Sprintf("Could not load the item map from ../trainer/item-lib-scraper/mapleitems.json\n%s", err))
+	}
+
+	if err = json.NewDecoder(itemFile).Decode(&im); err != nil {
+		panic(fmt.Sprintf("Could not decode json into struct from ../trainer/item-lib-scraper/mapleitems.json\n%s", err))
+	}
+
+	return im
+}
+
 func main() {
+	itemMap := loadItemMap()
+	fmt.Println(itemMap)
 	sourceDir := "../scrapper/images/"
 	files, err := os.ReadDir(sourceDir)
 	if err != nil {
