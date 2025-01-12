@@ -34,8 +34,6 @@ func main() {
 		}
 		item = formatItemURI(item)
 
-		log.Printf("\n ITEM : %s \n LIMIT: %d", item, limitInt)
-
 		var jsonData []byte
 		err = db.QueryRow("get-items-recent-entries", &jsonData, item, limitInt)
 		if err != nil {
