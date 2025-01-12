@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -53,24 +54,22 @@ func main() {
 		panic(fmt.Errorf("Could not read source images\n%s", err))
 	}
 	db := pg.NewPG()
-	for i, file := range files {
-		var exists bool
-		err := db.Conn.QueryRow(`SELECT EXISTS(SELECT imagekey FROM images_ingested WHERE imagekey = $1)`, file.Name()).Scan(&exists)
-		if err != nil {
-			log.Fatalf("Error performing retrival query on images_ingested \n%s", err)
-		}
-		if exists {
-			continue
-		}
-
-		fmt.Printf("\r processing images [%d/%d]", i, len(files))
+    var wg sync.WaitGroup
+    sem := make(cha int, 10)
+	for _, file := range files {
 		splitImg, err := splitImage(sourceDir + file.Name())
 		if err != nil {
 			panic(fmt.Errorf("Error splitting image\n%s", err))
 		}
+
+        wg.Add(1)
+        sem <- 1
+        go func() {
 		sir, _ := readSplitImage(splitImg)
 		saveResultsToDB(sir, file.Name(), itemMap, db)
+        }()
 	}
+    wg.Wait()
 }
 
 // TODO: Add all row areas once testing is done
@@ -215,7 +214,7 @@ func saveResultsToDB(sir SplitImageResults, imagekey string, itemMap ItemMap, db
 	pfn := sir.parseFileName()
 	ok, itemName := sir.parseItemName(itemMap)
 	if !ok {
-		_, err := db.Conn.Exec(`INSERT INTO failed_images (imagekey) VALUES ($1) ON CONFLICT DO NOTHING`, imagekey)
+		_, err := db.Conn.Exec(`INSERT INTO failed_images (imagekey) VALUES ($1)`, imagekey)
 		if err != nil {
 			log.Fatalf("Error performing insert into failed_images query\n%s", err)
 		}
@@ -283,9 +282,6 @@ func (sir *SplitImageResults) parseFileName() ParsedFileName {
 func (sir *SplitImageResults) parseItemName(itemMap ItemMap) (bool, string) {
 	endingTrim := strings.Split(sir.SearchArea, "that you")
 	prependTrim := strings.Split(endingTrim[0], "Search results for")
-	if len(prependTrim) <= 1 {
-		return false, ""
-	}
 	parsedItemName := prependTrim[1][1 : len(prependTrim[1])-1]
 
 	_, ok := itemMap.Entries[parsedItemName]
