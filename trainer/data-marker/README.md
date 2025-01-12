@@ -6,6 +6,10 @@ Expected training data will come from the output of running the scrapper.
 
 ## TODO
 
+- Make a data set of unique strings and not duplicates
+ ie; dont put in lots of Power elixir ones
+ so we can check existing vim txt files for the entered string or sth idk
+
 - Make this windows compatible for Rushi
 
 - Would be nice to have vim buffer open automatically

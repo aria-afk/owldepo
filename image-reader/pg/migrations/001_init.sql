@@ -21,3 +21,7 @@ create table item_entry_info (
 create table images_ingested (
     imagekey text primary key
 );
+
+create table failed_images (
+    imagekey text primary key
+);

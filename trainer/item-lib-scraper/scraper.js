@@ -36,13 +36,12 @@ const sleep = (ms) => new Promise(res => setTimeout(res, ms));
         startingPage++;
     }
 
-    const resJson = {
-    };
+    const resJson = { entries: {} };
 
     for (let i = 0; i < allPageData.length; i++) {
         const pd = allPageData[i];
         if (!pd?.name || !pd?.type || !pd?.libHref) continue;
-        resJson[pd.name] = pd;
+        resJson.entries[pd.name] = pd;
     }
 
     if (fs.existsSync("./mapleitems.json")) {
