@@ -7,7 +7,6 @@ SELECT JSON_BUILD_OBJECT('entries', JSON_AGG(JSON_BUILD_OBJECT(
         'quantity', item_entry_info.quantity, 
         'price', item_entry_info.price
     ) ORDER BY ie.time DESC),
-    'ordered_prices', ARRAY_AGG(item_entry_info.price ORDER BY ie.time DESC),
     'p0', MIN(item_entry_info.price),
     'p25', (SELECT PERCENTILE_DISC(0.25) WITHIN GROUP (order by item_entry_info.price)),
     'p50', (SELECT PERCENTILE_DISC(0.50) WITHIN GROUP (order by item_entry_info.price)),
