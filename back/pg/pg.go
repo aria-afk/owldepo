@@ -11,8 +11,9 @@ import (
 )
 
 type PG struct {
-	Conn     *sql.DB
-	QueryMap map[string]string
+	Conn            *sql.DB
+	QueryMap        map[string]string
+	queryMapPrepend string
 }
 
 func NewPG() *PG {
@@ -25,10 +26,12 @@ func NewPG() *PG {
 		log.Fatalf("could not open connection to db\n%s", err)
 	}
 	p := &PG{Conn: db, QueryMap: make(map[string]string, 0)}
-	err = p.LoadQueryMap("./queries")
+	// NOTE: Path is relative to where serve.go is.
+	err = p.LoadQueryMap("./pg/queries")
 	if err != nil {
 		log.Fatalf("could not load query map\n%s", err)
 	}
+	p.queryMapPrepend = "./pg/queries/"
 	return p
 }
 
@@ -62,6 +65,18 @@ func (pg *PG) LoadQueryMap(dirPath string) error {
 
 			pg.QueryMap[dir+"/"+extension[0]] = string(data)
 		}
+	}
+	return nil
+}
+
+func (pg *PG) QueryRow(queryName string, target any, args ...any) error {
+	query, ok := pg.QueryMap[pg.queryMapPrepend+queryName]
+	if !ok {
+		return fmt.Errorf("Provided query %s/%s does not exist within the query map.", pg.queryMapPrepend, queryName)
+	}
+	row := pg.Conn.QueryRow(query, args...)
+	if err := row.Scan(target); err != nil {
+		return fmt.Errorf("Query %s failed with err:\n%s", queryName, err)
 	}
 	return nil
 }
