@@ -1,12 +1,12 @@
 -- $1 name of item example "Scroll For Helm For Dex 60%"
 -- $2 amount of historical entries to fetch 
 -- NOTE: Can likely index for this to be a bit faster.
-SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+SELECT JSON_AGG(JSON_BUILD_OBJECT(
         'time', ie.time,
         'seller_id', item_entry_info.seller_id, 
         'quantity', item_entry_info.quantity, 
         'price', item_entry_info.price
-    )) 
+    ) ORDER BY ie.time DESC) 
 FROM items
 LEFT JOIN LATERAL (
     SELECT item_entries.uuid, item_entries.time 
